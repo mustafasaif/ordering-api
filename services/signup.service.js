@@ -30,10 +30,12 @@ module.exports = registerNewUser = async (data) => {
       password: hashedPassword,
     };
 
-    const createdUser = await User.create(userData).then((result) => {
-      return result.get({ plain: true });
-    });
+    const createdUser = await User.create(userData);
+    // .then((result) => {
+    //   return result.get({ plain: true });
+    // });
 
+    // return createdUser.toJSON();
     return createdUser;
   } catch (error) {
     throw error;

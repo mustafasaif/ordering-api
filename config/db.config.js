@@ -9,11 +9,11 @@ const dbConfig = {
     dialect: `${process.env.DEV_DB_DIALECT}`,
   },
   test: {
-    username: "root",
-    password: null,
-    database: "database_test",
-    host: "127.0.0.1",
-    dialect: "mysql",
+    username: `${process.env.TEST_DB_USER}`,
+    password: `${process.env.TEST_DB_PASS}`,
+    database: `${process.env.TEST_DB_DATABASE}`,
+    host: `${process.env.TEST_DB_HOST}`,
+    dialect: `${process.env.TEST_DB_DIALECT}`,
   },
   production: {
     username: "root",

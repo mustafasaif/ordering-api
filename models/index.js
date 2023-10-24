@@ -2,8 +2,9 @@ const fs = require("fs");
 const path = require("path");
 const Sequelize = require("sequelize");
 const basename = path.basename(__filename);
+const logger = require("../utils/logger");
 const db = {};
-const models = path.join(__dirname); // correct it to path where your model files are
+const models = path.join(__dirname);
 const config = require("../config/db.config.js");
 
 const connectionPool = {
@@ -19,18 +20,28 @@ let sequelize;
 if (config.use_env_variable) {
   sequelize = new Sequelize(process.env[config.use_env_variable], config, {
     pool: connectionPool,
-    // logging: true,
     query: { raw: true },
+    logging: false,
   });
 } else {
   sequelize = new Sequelize(config.database, config.username, config.password, {
     dialect: config.dialect,
     host: config.host,
-    // logging: true,
     pool: connectionPool,
     query: { raw: true },
+    logging: false,
   });
 }
+
+sequelize
+  .authenticate()
+  .then(() => {
+    logger.info("Sequelize has been successfully connected.");
+    logger.info("Node environment: " + process.env.NODE_ENV);
+  })
+  .catch((err) => {
+    logger.error("Unable to connect to the database:", err);
+  });
 
 fs.readdirSync(models)
   .filter(function (file) {
