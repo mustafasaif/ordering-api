@@ -1,17 +1,13 @@
 const { v4: uuidv4 } = require("uuid");
 const bcrypt = require("bcrypt");
 const db = require("../models/index");
-const dotenv = require("dotenv");
 const { User } = db;
 const isNull = require("lodash/isNull");
 const { createApiError } = require("../utils/apiError");
 
-dotenv.config();
 module.exports = registerNewUser = async (data) => {
   try {
     const { firstName, lastName, email, password } = data;
-
-    const saltRounds = process.env.SALT_ROUNDS;
 
     const userExists = await User.findOne({ where: { email } });
 
@@ -21,7 +17,7 @@ module.exports = registerNewUser = async (data) => {
         "This account already exists. Please try a different email"
       );
     }
-    const hashedPassword = await bcrypt.hash(password, saltRounds);
+    const hashedPassword = await bcrypt.hash(password, 12);
     const userData = {
       userId: uuidv4(),
       firstName,

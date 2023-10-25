@@ -24,6 +24,13 @@ module.exports = createUser = async (req, res, next) => {
         "any.required": "Password is a required field",
         "string.empty": `Password cannot be an empty field`,
       }),
+      confirmPassword: Joi.any()
+        .equal(Joi.ref("password"))
+        .required()
+        .messages({
+          "any.required": "Password is a required field",
+          "any.only": "Confirm Password does not match",
+        }),
     });
     const { error, value } = schema.validate(req.body);
 
