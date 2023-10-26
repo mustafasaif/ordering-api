@@ -2,6 +2,7 @@ const Joi = require("joi");
 const jwt = require("jsonwebtoken");
 const dotenv = require("dotenv");
 const loginUser = require("../services/login.service");
+const logger = require("../utils/logger");
 
 dotenv.config();
 
@@ -27,9 +28,9 @@ module.exports = userLogin = async (req, res, next) => {
     }
 
     const loggedUser = await loginUser(value);
-    console.log(`${process.env.LOGIN_EXPIRE}`);
 
     const { userId, firstName, lastName } = loggedUser;
+
     const token = jwt.sign(
       { userId, firstName, lastName },
       `${process.env.SECRET}`,
@@ -38,7 +39,8 @@ module.exports = userLogin = async (req, res, next) => {
       }
     );
 
-    res.json({ token, data: loggedUser });
+    res.status(200).json({ token });
+    logger.info(`User ${userId} logged in successfully`);
   } catch (error) {
     next(error);
   }

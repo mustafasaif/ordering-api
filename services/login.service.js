@@ -7,13 +7,26 @@ const { User } = db;
 module.exports = loginUser = async (data) => {
   const { email, password } = data;
   try {
-    const userExists = await User.findOne({ where: { email } });
+    const userExists = await User.scope("withPassword").findOne({
+      where: { email },
+    });
 
-    if (isNull(userExists)) {
-      throw createApiError(400, "This user does not exists");
+    // if (isNull(userExists)) {
+    //   throw createApiError(404, "This user does not exists");
+    // }
+    // const comparePassword = await bcrypt.compare(password, userExists.password);
+    // if (!comparePassword) {
+    //   throw createApiError(403, "Invalid password try again");
+    // }
+
+    if (
+      isNull(userExists) ||
+      !(await bcrypt.compare(password, userExists.password))
+    ) {
+      throw createApiError(400, "Invalid email or password try again");
     }
-    const comparePassword = await bcrypt.compare(password, userExists.password);
-    if (comparePassword) return userExists;
+
+    return userExists;
   } catch (error) {
     logger.error(error);
     throw error;

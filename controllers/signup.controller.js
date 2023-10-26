@@ -1,5 +1,6 @@
 const Joi = require("joi");
 const registerNewUser = require("../services/signup.service");
+const logger = require("../utils/logger");
 
 module.exports = createUser = async (req, res, next) => {
   try {
@@ -39,7 +40,9 @@ module.exports = createUser = async (req, res, next) => {
       return;
     }
     const newUser = await registerNewUser(value);
-    res.json(newUser);
+
+    res.status(200).json({ data: "User created successfully" });
+    logger.info(`user ${newUser.firstName} created successfully`);
   } catch (error) {
     next(error);
   }
