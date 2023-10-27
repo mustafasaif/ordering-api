@@ -47,8 +47,15 @@ const createUser = async (req, res, next) => {
         error: error.details[0].message,
       });
     }
-    const newUser = await registerNewUser(userData);
 
+    if (req?.user?.role !== "admin" && userData.role === "admin") {
+      return res.status(400).json({
+        success: false,
+        message: "Post Operation failed",
+        error: "You are not authorized to create admin accounts",
+      });
+    }
+    const newUser = await registerNewUser(userData);
     res.status(201).json({
       success: true,
       message: "Post Operation completed successfully.",
@@ -56,6 +63,7 @@ const createUser = async (req, res, next) => {
     });
     logger.info(`user ${newUser.firstName} created successfully`);
   } catch (error) {
+    logger.error(error);
     next(error);
   }
 };

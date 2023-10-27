@@ -11,6 +11,14 @@ const errorConverter = (err, req, res, next) => {
       error = new ApiError(statusCode, message, false, err.stack);
     }
   }
+  if (error.name === "SequelizeUniqueConstraintError" && error.parent) {
+    if (error.parent.code === "ER_DUP_ENTRY") {
+      const statusCode = 409;
+      const message =
+        "This account already exists. Please try a different email";
+      error = new ApiError(statusCode, message, false, err.stack);
+    }
+  }
   if (error.name === "TokenExpiredError") {
     const statusCode = 401;
     const message = "Your session has expired. Please log in again.";

@@ -16,7 +16,10 @@ const authenticationCheck = async (req, res, next) => {
     }
 
     if (!token) {
-      throw createApiError(401, "Bearer token missing in authorization headers");
+      throw createApiError(
+        401,
+        "Bearer token missing in authorization headers"
+      );
     }
 
     const decodedToken = await util.promisify(jwt.verify)(
