@@ -1,8 +1,8 @@
 const Joi = require("joi");
-const registerNewUser = require("../services/signup.service");
+const { registerNewUser } = require("../services/signup.service");
 const logger = require("../utils/logger");
 
-module.exports = createUser = async (req, res, next) => {
+const createUser = async (req, res, next) => {
   try {
     const schema = Joi.object({
       firstName: Joi.string().required("first name is required").messages({
@@ -32,7 +32,12 @@ module.exports = createUser = async (req, res, next) => {
           "any.required": "Password is a required field",
           "any.only": "Confirm Password does not match",
         }),
-    });
+      role: Joi.string(),
+    })
+      .options({ allowUnknown: false })
+      .messages({
+        "object.unknown": "Please provide the required fields only.",
+      });
     const { error, value } = schema.validate(req.body);
 
     if (error) {
@@ -46,4 +51,8 @@ module.exports = createUser = async (req, res, next) => {
   } catch (error) {
     next(error);
   }
+};
+
+module.exports = {
+  createUser,
 };

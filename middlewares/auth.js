@@ -2,8 +2,9 @@ const jwt = require("jsonwebtoken");
 const { createApiError } = require("../utils/apiError");
 const util = require("util");
 const db = require("../models/index");
+const isNull = require("lodash/isNull");
 const { User } = db;
-module.exports = authCheck = async (req, res, next) => {
+const authenticationCheck = async (req, res, next) => {
   try {
     //1.check if token exists
 
@@ -29,16 +30,19 @@ module.exports = authCheck = async (req, res, next) => {
     if (!user) {
       throw createApiError(401, "The user with the given token does not exist");
     }
-    const updatedAtTimestamp = parseInt(
-      user.passwordUpdatedAt.getTime() / 1000,
-      10
-    );
 
-    if (decodedToken.iat < updatedAtTimestamp) {
-      throw createApiError(
-        401,
-        "The password has been changed. Please login again"
+    if (!isNull(user.passwordUpdatedAt)) {
+      const updatedAtTimestamp = parseInt(
+        user.passwordUpdatedAt.getTime() / 1000,
+        10
       );
+
+      if (decodedToken.iat < updatedAtTimestamp) {
+        throw createApiError(
+          401,
+          "The password has been changed. Please login again"
+        );
+      }
     }
 
     //2.check if token is valid
@@ -50,4 +54,21 @@ module.exports = authCheck = async (req, res, next) => {
   } catch (error) {
     next(error);
   }
+};
+
+const authorizationCheck = (...role) => {
+  return (req, res, next) => {
+    if (! role.includes(req.user.role)) {
+      throw createApiError(
+        403,
+        "You do not have permission to perform this action"
+      );
+    }
+    next();
+  };
+};
+
+module.exports = {
+  authenticationCheck,
+  authorizationCheck,
 };

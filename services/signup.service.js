@@ -5,9 +5,9 @@ const { User } = db;
 const isNull = require("lodash/isNull");
 const { createApiError } = require("../utils/apiError");
 
-module.exports = registerNewUser = async (data) => {
+const registerNewUser = async (data) => {
   try {
-    const { firstName, lastName, email, password } = data;
+    const { firstName, lastName, email, password, role } = data;
 
     const userExists = await User.findOne({ where: { email } });
 
@@ -24,6 +24,7 @@ module.exports = registerNewUser = async (data) => {
       lastName,
       email,
       password: hashedPassword,
+      role,
     };
 
     const createdUser = await User.create(userData);
@@ -36,4 +37,8 @@ module.exports = registerNewUser = async (data) => {
   } catch (error) {
     throw error;
   }
+};
+
+module.exports = {
+  registerNewUser,
 };

@@ -1,7 +1,7 @@
 const db = require("../models/index");
 const { Branch } = db;
 
-module.exports = fetchAllBranch = async () => {
+const fetchAllBranch = async () => {
   try {
     const results = await Branch.findAll();
     return results;
@@ -9,4 +9,18 @@ module.exports = fetchAllBranch = async () => {
     console.log(error);
     throw error;
   }
+};
+
+const deleteSpecificBranch = async (branchId) => {
+  try {
+    const deletedBranch = await Branch.destroy({ where: { branchId } });
+    return deletedBranch;
+  } catch (error) {
+    throw error;
+  }
+};
+
+module.exports = {
+  fetchAllBranch,
+  deleteSpecificBranch,
 };

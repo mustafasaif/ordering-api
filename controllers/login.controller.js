@@ -6,7 +6,7 @@ const logger = require("../utils/logger");
 
 dotenv.config();
 
-module.exports = userLogin = async (req, res, next) => {
+const userLogin = async (req, res, next) => {
   try {
     const schema = Joi.object({
       email: Joi.string().email().required().messages({
@@ -19,7 +19,11 @@ module.exports = userLogin = async (req, res, next) => {
         "any.required": "Password is a required field",
         "string.empty": `Password cannot be an empty field`,
       }),
-    });
+    })
+      .options({ allowUnknown: false })
+      .messages({
+        "object.unknown": "Please provide the required fields only.",
+      });
     const { error, value } = schema.validate(req.body);
 
     if (error) {
@@ -44,4 +48,8 @@ module.exports = userLogin = async (req, res, next) => {
   } catch (error) {
     next(error);
   }
+};
+
+module.exports = {
+  userLogin,
 };
