@@ -16,15 +16,15 @@ module.exports = {
         primaryKey: true,
         type: Sequelize.INTEGER,
       },
-      BranchId: {
+      branchId: {
         type: Sequelize.STRING,
         allowNull: false,
       },
-      BranchName: {
+      branchName: {
         type: Sequelize.STRING,
         allowNull: false,
       },
-      BranchLocation: {
+      branchLocation: {
         type: Sequelize.STRING,
         allowNull: false,
       },

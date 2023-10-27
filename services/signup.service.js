@@ -5,20 +5,20 @@ const { User } = db;
 const isNull = require("lodash/isNull");
 const { createApiError } = require("../utils/apiError");
 
-const registerNewUser = async (data) => {
+const registerNewUser = async (userData) => {
   try {
-    const { firstName, lastName, email, password, role } = data;
+    const { firstName, lastName, email, password, role } = userData;
 
-    const userExists = await User.findOne({ where: { email } });
+    const existingUser = await User.findOne({ where: { email } });
 
-    if (!isNull(userExists)) {
+    if (!isNull(existingUser)) {
       throw createApiError(
         409,
         "This account already exists. Please try a different email"
       );
     }
     const hashedPassword = await bcrypt.hash(password, 12);
-    const userData = {
+    const newUser = {
       userId: uuidv4(),
       firstName,
       lastName,
@@ -27,7 +27,7 @@ const registerNewUser = async (data) => {
       role,
     };
 
-    const createdUser = await User.create(userData);
+    const createdUser = await User.create(newUser);
     // .then((result) => {
     //   return result.get({ plain: true });
     // });

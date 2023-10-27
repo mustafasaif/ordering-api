@@ -1,12 +1,12 @@
 const Joi = require("joi");
 const jwt = require("jsonwebtoken");
 const dotenv = require("dotenv");
-const loginUser = require("../services/login.service");
+const { login } = require("../services/login.service");
 const logger = require("../utils/logger");
 
 dotenv.config();
 
-const userLogin = async (req, res, next) => {
+const userLoginHandler = async (req, res, next) => {
   try {
     const schema = Joi.object({
       email: Joi.string().email().required().messages({
@@ -27,13 +27,16 @@ const userLogin = async (req, res, next) => {
     const { error, value } = schema.validate(req.body);
 
     if (error) {
-      res.status(400).json({ error: error.details[0].message });
-      return;
+      return res.status(400).json({
+        success: false,
+        message: "Validation failed",
+        error: error.details[0].message,
+      });
     }
 
-    const loggedUser = await loginUser(value);
+    const loggedInUser = await login(value);
 
-    const { userId, firstName, lastName } = loggedUser;
+    const { userId, firstName, lastName } = loggedInUser;
 
     const token = jwt.sign(
       { userId, firstName, lastName },
@@ -43,7 +46,12 @@ const userLogin = async (req, res, next) => {
       }
     );
 
-    res.status(200).json({ token });
+    res.status(200).json({
+      success: true,
+      message: "Operation completed successfully.",
+      data: { token },
+    });
+
     logger.info(`User ${userId} logged in successfully`);
   } catch (error) {
     next(error);
@@ -51,5 +59,5 @@ const userLogin = async (req, res, next) => {
 };
 
 module.exports = {
-  userLogin,
+  userLoginHandler,
 };

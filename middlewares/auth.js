@@ -16,7 +16,7 @@ const authenticationCheck = async (req, res, next) => {
     }
 
     if (!token) {
-      throw createApiError(401, "No authorization headers");
+      throw createApiError(401, "Bearer token missing in authorization headers");
     }
 
     const decodedToken = await util.promisify(jwt.verify)(
@@ -56,9 +56,9 @@ const authenticationCheck = async (req, res, next) => {
   }
 };
 
-const authorizationCheck = (...role) => {
+const authorizationCheck = (...roles) => {
   return (req, res, next) => {
-    if (! role.includes(req.user.role)) {
+    if (!roles.includes(req.user.role)) {
       throw createApiError(
         403,
         "You do not have permission to perform this action"

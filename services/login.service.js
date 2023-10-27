@@ -4,8 +4,9 @@ const db = require("../models/index");
 const isNull = require("lodash/isNull");
 const { createApiError } = require("../utils/apiError");
 const { User } = db;
-module.exports = loginUser = async (data) => {
-  const { email, password } = data;
+
+const login = async (userData) => {
+  const { email, password } = userData;
   try {
     const userExists = await User.scope("withPassword").findOne({
       where: { email },
@@ -32,3 +33,5 @@ module.exports = loginUser = async (data) => {
     throw error;
   }
 };
+
+module.exports = { login };

@@ -38,15 +38,22 @@ const createUser = async (req, res, next) => {
       .messages({
         "object.unknown": "Please provide the required fields only.",
       });
-    const { error, value } = schema.validate(req.body);
+    const { error, value: userData } = schema.validate(req.body);
 
     if (error) {
-      res.status(400).json({ error: error.details[0].message });
-      return;
+      return res.status(400).json({
+        success: false,
+        message: "Validation failed",
+        error: error.details[0].message,
+      });
     }
-    const newUser = await registerNewUser(value);
+    const newUser = await registerNewUser(userData);
 
-    res.status(200).json({ data: "User created successfully" });
+    res.status(201).json({
+      success: true,
+      message: "Post Operation completed successfully.",
+      data: newUser,
+    });
     logger.info(`user ${newUser.firstName} created successfully`);
   } catch (error) {
     next(error);
