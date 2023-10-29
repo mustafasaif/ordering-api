@@ -4,6 +4,8 @@ const dotenv = require("dotenv");
 const { logger } = require("./utils/logger.js");
 const { errorConverter, errorHandler } = require("./middlewares/error.js");
 const router = require("./routes/index.js");
+const db = require("./models/index.js");
+
 dotenv.config();
 
 const app = express();
@@ -16,9 +18,13 @@ app.use(errorHandler);
 const serverPort =
   process.env.NODE_ENV === "test" ? process.env.TEST_PORT : process.env.PORT;
 
-const server = app.listen(serverPort, () => {
-  logger.info(`Listening to port ${serverPort}`);
+let server;
+
+const Server = db.sequelize.initSequelizeConnection().then(() => {
+  return (server = app.listen(serverPort, () => {
+    logger.info(`Listening to port ${serverPort}`);
+  }));
 });
 
 // Export the Express app and server for testing
-module.exports = { app, server };
+module.exports = { app, Server };

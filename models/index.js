@@ -33,15 +33,20 @@ if (config.use_env_variable) {
   });
 }
 
-sequelize
-  .authenticate()
-  .then(() => {
-    logger.info("Sequelize has been successfully connected.");
-    logger.info("Node environment: " + process.env.NODE_ENV);
-  })
-  .catch((err) => {
-    logger.error("Unable to connect to the database:", err);
-  });
+sequelize.initSequelizeConnection = async () => {
+  try {
+    // Authenticate the database connection
+    await sequelize.authenticate().then(() => {
+      logger.info("Sequelize has been successfully connected.");
+      logger.info("Node environment: " + process.env.NODE_ENV);
+      return;
+    });
+
+    return sequelize;
+  } catch (error) {
+    throw error;
+  }
+};
 
 fs.readdirSync(models)
   .filter(function (file) {

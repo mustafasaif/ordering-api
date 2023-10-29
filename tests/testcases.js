@@ -7,7 +7,11 @@ const testCases = [
       password: "teddst",
     },
     expectedStatusCode: 400,
-    expectedResponseBody: { error: "Email is a required field" },
+    expectedResponseBody: {
+      success: false,
+      message: "Validation failed",
+      error: "Email is a required field",
+    },
   },
   {
     description:
@@ -19,7 +23,11 @@ const testCases = [
       email: "",
     },
     expectedStatusCode: 400,
-    expectedResponseBody: { error: "Email cannot be an empty field" },
+    expectedResponseBody: {
+      success: false,
+      message: "Validation failed",
+      error: "Email cannot be an empty field",
+    },
   },
   {
     description:
@@ -31,7 +39,11 @@ const testCases = [
       email: "dfdfdfdffd",
     },
     expectedStatusCode: 400,
-    expectedResponseBody: { error: "Email provided is not valid" },
+    expectedResponseBody: {
+      success: false,
+      message: "Validation failed",
+      error: "Email provided is not valid",
+    },
   },
   {
     description:
@@ -43,7 +55,11 @@ const testCases = [
       email: 5,
     },
     expectedStatusCode: 400,
-    expectedResponseBody: { error: "Email should be a type of text" },
+    expectedResponseBody: {
+      success: false,
+      message: "Validation failed",
+      error: "Email should be a type of text",
+    },
   },
   {
     description:
@@ -54,7 +70,11 @@ const testCases = [
       email: "fra2xnk0@sdaswdad.com",
     },
     expectedStatusCode: 400,
-    expectedResponseBody: { error: "Password is a required field" },
+    expectedResponseBody: {
+      success: false,
+      message: "Validation failed",
+      error: "Password is a required field",
+    },
   },
   {
     description:
@@ -66,7 +86,28 @@ const testCases = [
       password: "",
     },
     expectedStatusCode: 400,
-    expectedResponseBody: { error: "Password cannot be an empty field" },
+    expectedResponseBody: {
+      success: false,
+      message: "Validation failed",
+      error: "Password cannot be an empty field",
+    },
+  },
+  {
+    description:
+      "should return a 400 status code with comparasion error for password",
+    requestBody: {
+      firstName: "dfdfd",
+      lastName: "pual",
+      email: "fra2xnk0@sdaswdad.com",
+      password: "1234567",
+      confirmPassword: "123456",
+    },
+    expectedStatusCode: 400,
+    expectedResponseBody: {
+      success: false,
+      message: "Validation failed",
+      error: "Confirm Password does not match",
+    },
   },
   {
     description:
@@ -77,7 +118,11 @@ const testCases = [
       password: "teddst",
     },
     expectedStatusCode: 400,
-    expectedResponseBody: { error: "first name is a required field" },
+    expectedResponseBody: {
+      success: false,
+      message: "Validation failed",
+      error: "first name is a required field",
+    },
   },
   {
     description:
@@ -89,7 +134,11 @@ const testCases = [
       password: "teddst",
     },
     expectedStatusCode: 400,
-    expectedResponseBody: { error: "first name cannot be an empty field" },
+    expectedResponseBody: {
+      success: false,
+      message: "Validation failed",
+      error: "first name cannot be an empty field",
+    },
   },
   {
     description:
@@ -100,7 +149,11 @@ const testCases = [
       password: "teddst",
     },
     expectedStatusCode: 400,
-    expectedResponseBody: { error: "Last name is a required field" },
+    expectedResponseBody: {
+      success: false,
+      message: "Validation failed",
+      error: "Last name is a required field",
+    },
   },
   {
     description:
@@ -112,7 +165,11 @@ const testCases = [
       password: "teddst",
     },
     expectedStatusCode: 400,
-    expectedResponseBody: { error: "Last name cannot be an empty field" },
+    expectedResponseBody: {
+      success: false,
+      message: "Validation failed",
+      error: "Last name cannot be an empty field",
+    },
   },
 ];
 

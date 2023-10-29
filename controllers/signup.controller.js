@@ -29,7 +29,7 @@ const createUser = async (req, res, next) => {
         .equal(Joi.ref("password"))
         .required()
         .messages({
-          "any.required": "Password is a required field",
+          "any.required": "Confirm Password is a required field",
           "any.only": "Confirm Password does not match",
         }),
       role: Joi.string(),

@@ -9,8 +9,9 @@ const {
 const authentication = express.Router();
 
 module.exports = () => {
+  authentication.post("/register", createUser);
   authentication.post(
-    "/register",
+    "/register-admin",
     authenticationCheck,
     authorizationCheck("admin", "user"),
     createUser
