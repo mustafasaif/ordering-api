@@ -9,11 +9,13 @@ const logger = require("../utils/logger");
 
 const getAllBranch = async (req, res, next) => {
   try {
-    const branches = await getAllBranches();
+    const filterData = req.query;
+    const branches = await getAllBranches(filterData);
     res.status(200).json({
       success: true,
       message: "Get Operation completed successfully",
       data: branches,
+      Total: branches.length,
     });
   } catch (error) {
     logger.error(error);
@@ -25,7 +27,6 @@ const deleteBranch = async (req, res, next) => {
   try {
     const { branchId } = req.params;
     const deletedCount = await deleteBranchById(branchId);
-    console.log({ deletedCount });
     if (deletedCount < 1) {
       return res.status(400).json({
         message: "Delete Operation failed",
