@@ -11,7 +11,7 @@ module.exports = {
      */
 
     await queryInterface.addColumn("Users", "role", {
-      type: Sequelize.ENUM(["user", "admin"]),
+      type: Sequelize.ENUM(["user", "admin","branch_manager"]),
       allowNull: false,
       defaultValue: "user",
     });

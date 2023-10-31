@@ -20,6 +20,7 @@ module.exports = (sequelize, DataTypes) => {
       branchId: {
         type: DataTypes.STRING,
         allowNull: false,
+        unique: true,
       },
       branchName: { type: DataTypes.STRING, allowNull: false },
       branchLocation: { type: DataTypes.STRING, allowNull: false },

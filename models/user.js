@@ -19,6 +19,7 @@ module.exports = (sequelize, DataTypes) => {
       userId: {
         type: DataTypes.STRING,
         allowNull: false,
+        unique: true,
       },
       firstName: { type: DataTypes.STRING, allowNull: false },
       lastName: { type: DataTypes.STRING, allowNull: false },
@@ -32,7 +33,7 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: true,
       },
       role: {
-        type: DataTypes.ENUM(["user", "admin"]),
+        type: DataTypes.ENUM(["user", "admin", "branch_manager"]),
         allowNull: false,
         defaultValue: "user",
       },

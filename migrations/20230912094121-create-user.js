@@ -57,6 +57,7 @@ module.exports = {
       userId: {
         type: Sequelize.STRING,
         allowNull: false,
+        unique:true
       },
 
       firstName: {

@@ -19,6 +19,7 @@ module.exports = {
       branchId: {
         type: Sequelize.STRING,
         allowNull: false,
+        unique:true
       },
       branchName: {
         type: Sequelize.STRING,
