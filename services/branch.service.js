@@ -6,17 +6,20 @@ const { Branch, Sequelize } = db;
 
 const getAllBranches = async (filterData) => {
   try {
-    const { branchName, branchLocation, startDate, endDate, day } = filterData;
-    let where = {};
+    const { branchName, branchLocation, startDate, endDate, day, q, limit } =
+      filterData;
+    let options = { where: {}, limit };
     let currentDate;
-    if (branchName) where.branchName = branchName;
-    if (branchLocation) where.branchLocation = branchLocation;
+    if (branchName) options.where.branchName = branchName;
+    if (branchLocation) options.where.branchLocation = branchLocation;
 
     if (startDate) {
       if (!endDate) {
-        where.createdAt = new Date(new Date(startDate).setUTCHours(0, 0, 0, 0));
+        options.where.createdAt = new Date(
+          new Date(startDate).setUTCHours(0, 0, 0, 0)
+        );
       } else {
-        where.createdAt = {
+        options.where.createdAt = {
           [Sequelize.Op.between]: [
             new Date(new Date(startDate).setUTCHours(0, 0, 0, 0)),
             new Date(new Date(endDate).setUTCHours(23, 59, 59, 59)),
@@ -28,7 +31,7 @@ const getAllBranches = async (filterData) => {
       switch (day) {
         case "today":
           currentDate = new Date();
-          where.createdAt = {
+          options.where.createdAt = {
             [Sequelize.Op.between]: [
               new Date(currentDate.setUTCHours(0, 0, 0, 0)),
               new Date(currentDate.setUTCHours(23, 59, 59, 59)),
@@ -42,7 +45,7 @@ const getAllBranches = async (filterData) => {
           startOfWeek.setUTCHours(0, 0, 0, 0);
           startOfWeek.setDate(currentDate.getDate() - 7);
           const endOfWeek = new Date(currentDate.setUTCHours(23, 59, 59, 59));
-          where.createdAt = {
+          options.where.createdAt = {
             [Sequelize.Op.between]: [startOfWeek, endOfWeek],
           };
 
@@ -53,14 +56,14 @@ const getAllBranches = async (filterData) => {
           startOfMonth.setUTCHours(0, 0, 0, 0);
           startOfMonth.setMonth(currentDate.getMonth() - 1);
           const endOfMonth = new Date(currentDate.setUTCHours(23, 59, 59, 59));
-          where.createdAt = {
+          options.where.createdAt = {
             [Sequelize.Op.between]: [startOfMonth, endOfMonth],
           };
           break;
 
         default:
           currentDate = new Date();
-          where.createdAt = {
+          options.where.createdAt = {
             [Sequelize.Op.between]: [
               new Date(currentDate.setUTCHours(0, 0, 0, 0)),
               new Date(currentDate.setUTCHours(23, 59, 59, 59)),
@@ -70,7 +73,16 @@ const getAllBranches = async (filterData) => {
       }
     }
 
-    const branches = await Branch.findAll({ where });
+    if (q) {
+      options.where[Sequelize.Op.or] = [
+        { branchName: { [Sequelize.Op.like]: `%${q}%` } },
+        { branchLocation: { [Sequelize.Op.like]: `%${q}%` } },
+      ];
+    }
+
+    options.limit = parseInt(limit) || 50;
+    const branches = await Branch.findAndCountAll(options);
+    console.log(branches);
     return branches;
   } catch (error) {
     throw error;

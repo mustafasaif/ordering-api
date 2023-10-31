@@ -6,6 +6,8 @@ const {
   bulkDeleteBranch,
   createNewBranch,
 } = require("../controllers/branch.controller");
+const { deleteUser } = require("../controllers/user.controller");
+
 const {
   authenticationCheck,
   authorizationCheck,
@@ -32,6 +34,12 @@ module.exports = () => {
     authenticationCheck,
     authorizationCheck("admin"),
     createNewBranch
+  );
+  router.delete(
+    "/users/delete:userId",
+    authenticationCheck,
+    authorizationCheck("admin"),
+    deleteUser
   );
   return router;
 };

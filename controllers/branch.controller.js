@@ -14,8 +14,8 @@ const getAllBranch = async (req, res, next) => {
     res.status(200).json({
       success: true,
       message: "Get Operation completed successfully",
-      data: branches,
-      Total: branches.length,
+      data: branches.rows,
+      Total: branches.count,
     });
   } catch (error) {
     logger.error(error);
@@ -25,7 +25,23 @@ const getAllBranch = async (req, res, next) => {
 
 const deleteBranch = async (req, res, next) => {
   try {
-    const { branchId } = req.params;
+    const schema = Joi.object({
+      branchId: Joi.string().guid({ version: "uuidv4" }).required().messages({
+        "string.guid": "The branchId must be UUIDv4",
+        "string.base": "The branchId must be in string format",
+      }),
+    });
+
+    const { error, value } = schema.validate(req.params);
+
+    if (error) {
+      return res.status(400).json({
+        success: false,
+        message: "Validation failed",
+        error: error.details[0].message,
+      });
+    }
+    const { branchId } = value;
     const deletedCount = await deleteBranchById(branchId);
     if (deletedCount < 1) {
       return res.status(400).json({
