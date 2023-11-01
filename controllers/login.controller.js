@@ -36,10 +36,10 @@ const userLoginHandler = async (req, res, next) => {
 
     const loggedInUser = await login(value);
 
-    const { userId, firstName, lastName } = loggedInUser;
+    const { userId, firstName, lastName, role, branchId } = loggedInUser;
 
     const token = jwt.sign(
-      { userId, firstName, lastName },
+      { userId, firstName, lastName, branchId },
       `${process.env.SECRET}`,
       {
         expiresIn: `${process.env.LOGIN_EXPIRE}`,
@@ -49,7 +49,10 @@ const userLoginHandler = async (req, res, next) => {
     res.status(200).json({
       success: true,
       message: "Operation completed successfully.",
-      data: { token },
+      data: {
+        token,
+        userInfo: { userId, firstName, lastName, role, branchId },
+      },
     });
 
     logger.info(`User ${userId} logged in successfully`);

@@ -1,6 +1,7 @@
 const Joi = require("joi");
 const { registerNewUser, deleteUserById } = require("../services/user.service");
 const logger = require("../utils/logger");
+const isNull = require("lodash/isNull");
 
 const createUser = async (req, res, next) => {
   try {
@@ -32,7 +33,22 @@ const createUser = async (req, res, next) => {
           "any.required": "Confirm Password is a required field",
           "any.only": "Confirm Password does not match",
         }),
-      role: Joi.string(),
+      role: Joi.string()
+        .valid("admin", "user", "branch_manager")
+        .required()
+        .messages({
+          "any.required": "Role is a required field",
+          "any.only": "Invalid role specified",
+        }),
+      branchId: Joi.when("role", {
+        is: Joi.valid("user", "branch_manager"),
+        then: Joi.string().required().messages({
+          "any.required": "Branch ID is required for users and branch managers",
+          "string.base": "Branch ID should be a type of text",
+          "string.empty": "Branch ID cannot be an empty field",
+        }),
+        otherwise: Joi.optional(),
+      }),
     })
       .options({ allowUnknown: false })
       .messages({
@@ -48,21 +64,52 @@ const createUser = async (req, res, next) => {
       });
     }
 
-    if (req?.user?.role !== "admin" && userData.role === "admin") {
-      return res.status(400).json({
-        success: false,
-        message: "Post Operation failed",
-        error: "You are not authorized to create admin accounts",
-      });
+    switch (true) {
+      case req?.user?.role !== "admin" && userData.role === "admin":
+        return res.status(400).json({
+          success: false,
+          message: "Post Operation failed",
+          error: "You are not authorized to create admin accounts",
+        });
+
+      case req.user.role === "admin" &&
+        (userData.role === "user" || userData.role === "branch_manager") &&
+        isNull(userData.branchId):
+        return res.status(400).json({
+          success: false,
+          message: "Post Operation failed",
+          error: "You need to provide branchId for Managers and users",
+        });
+
+      case req.user.role === "branch_manager" &&
+        userData.role === "branch_manager":
+        return res.status(400).json({
+          success: false,
+          message: "Post Operation failed",
+          error: "Branch managers cannot create other branch managers",
+        });
+
+      case req.user.role === "branch_manager" &&
+        userData.role === "user" &&
+        isNull(userData.branchId):
+        return res.status(400).json({
+          success: false,
+          message: "Post Operation failed",
+          error: "Please provide branchId for the user",
+        });
+
+      default:
+        // If none of the conditions match, create a new user
+        const newUser = await registerNewUser(userData);
+        res.status(201).json({
+          success: true,
+          message: "Post Operation completed successfully.",
+          data: newUser,
+        });
+        logger.info(`user ${newUser.firstName} created successfully`);
     }
-    const newUser = await registerNewUser(userData);
-    res.status(201).json({
-      success: true,
-      message: "Post Operation completed successfully.",
-      data: newUser,
-    });
-    logger.info(`user ${newUser.firstName} created successfully`);
   } catch (error) {
+    console.log(error);
     logger.error(error);
     next(error);
   }

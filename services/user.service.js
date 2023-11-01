@@ -7,7 +7,7 @@ const { createApiError } = require("../utils/apiError");
 
 const registerNewUser = async (userData) => {
   try {
-    const { firstName, lastName, email, password, role } = userData;
+    const { firstName, lastName, email, password, role, branchId } = userData;
 
     const existingUser = await User.findOne({ where: { email } });
 
@@ -25,6 +25,7 @@ const registerNewUser = async (userData) => {
       email,
       password: hashedPassword,
       role,
+      branchId,
     };
 
     const createdUser = await User.create(newUser);
@@ -50,5 +51,5 @@ const deleteUserById = async (userId) => {
 
 module.exports = {
   registerNewUser,
-  deleteUserById
+  deleteUserById,
 };

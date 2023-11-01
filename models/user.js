@@ -5,6 +5,10 @@ module.exports = (sequelize, DataTypes) => {
   class User extends Model {
     static associate(models) {
       // Define associations here
+      User.belongsTo(models.Branch, {
+        as: "branch",
+        foreignKey: "branchId",
+      });
     }
   }
 
@@ -41,6 +45,10 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.DATE,
         allowNull: false,
         defaultValue: DataTypes.NOW,
+      },
+      branchId: {
+        type: DataTypes.STRING,
+        allowNull: true,
       },
       updatedAt: {
         type: DataTypes.DATE,

@@ -2,12 +2,24 @@ const { isNull } = require("lodash");
 const { v4: uuidv4 } = require("uuid");
 const db = require("../models/index");
 const { createApiError } = require("../utils/apiError");
-const { Branch, Sequelize } = db;
+const { removeDuplicateBranches } = require("../utils/modifier");
+const { Branch, User, Sequelize } = db;
+
+// Example usage:
 
 const getAllBranches = async (filterData) => {
   try {
-    const { branchName, branchLocation, startDate, endDate, day, q, limit } =
-      filterData;
+    const {
+      branchName,
+      branchLocation,
+      startDate,
+      endDate,
+      day,
+      q,
+      limit,
+      branchId,
+      getUsers,
+    } = filterData;
     let options = { where: {}, limit };
     let currentDate;
     if (branchName) options.where.branchName = branchName;
@@ -80,11 +92,38 @@ const getAllBranches = async (filterData) => {
       ];
     }
 
+    if (branchId) {
+      options.where.branchId = branchId;
+    }
+    console.log(getUsers);
+    if (getUsers) {
+      options.raw = true;
+      options.nest = true;
+      options.include = [
+        {
+          model: User,
+          as: "users",
+        },
+      ];
+    }
+
     options.limit = parseInt(limit) || 50;
-    const branches = await Branch.findAndCountAll(options);
-    console.log(branches);
-    return branches;
+    // options.raw = true;
+    options.logging = true;
+
+    console.log(options);
+    let results = {};
+    const { rows, count } = await Branch.findAndCountAll(options);
+
+    if (getUsers) {
+      const branches = await removeDuplicateBranches(rows, "branchId");
+      results.rows = branches;
+    }
+    results.rows = rows;
+    results.count = count;
+    return results;
   } catch (error) {
+    console.log(error);
     throw error;
   }
 };

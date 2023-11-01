@@ -6,6 +6,11 @@ module.exports = (sequelize, DataTypes) => {
   class Branch extends Model {
     static associate(models) {
       //Define associations here
+      Branch.hasMany(models.User, {
+        as: "users",
+        foreignKey: "branchId",
+        sourceKey: "branchId",
+      });
     }
   }
 
