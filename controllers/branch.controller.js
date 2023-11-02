@@ -3,6 +3,7 @@ const {
   deleteBranchById,
   deleteBranchesByIds,
   createBranch,
+  updateBranchById,
 } = require("../services/branch.service");
 const Joi = require("joi");
 const logger = require("../utils/logger");
@@ -143,9 +144,62 @@ const createNewBranch = async (req, res, next) => {
   }
 };
 
+const updateBranch = async (req, res, next) => {
+  try {
+    const paramsSchema = Joi.object({
+      branchId: Joi.string().guid({ version: "uuidv4" }).required().messages({
+        "string.guid": "The branchId must be UUIDv4",
+        "string.base": "The branchId must be in string format",
+      }),
+    });
+
+    const { error: branchIdError, value: branchId } = paramsSchema.validate(
+      req.params
+    );
+
+    if (branchIdError) {
+      return res.status(400).json({
+        success: false,
+        message: "Validation failed",
+        error: branchIdError.details[0].message,
+      });
+    }
+    const schema = Joi.object({
+      branchName: Joi.string(),
+      branchLocation: Joi.string(),
+    })
+      .or("branchName", "branchLocation")
+      .unknown(false);
+
+    const { error, value: branchData } = schema.validate(req.body);
+    if (error) {
+      return res.status(400).json({
+        success: false,
+        message: "Validation failed",
+        error: error.details[0].message,
+      });
+    }
+    const updatedBranch = await updateBranchById(branchId.branchId, branchData);
+    if (updatedBranch[0] === 0) {
+      return res.status(400).json({
+        message: "patch Operation failed",
+        error: "The provided branch Id do not exist.",
+      });
+    }
+    res.status(201).json({
+      success: true,
+      message: "Patch Operation completed successfully.",
+      data: updatedBranch[0],
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   getAllBranch,
   deleteBranch,
   bulkDeleteBranch,
   createNewBranch,
+  updateBranch,
 };

@@ -2,10 +2,11 @@ const { isNull } = require("lodash");
 const { v4: uuidv4 } = require("uuid");
 const db = require("../models/index");
 const { createApiError } = require("../utils/apiError");
-const { removeDuplicateBranches } = require("../utils/modifier");
+const {
+  removeDuplicateBranches,
+  dateRangeFilter,
+} = require("../utils/commonFunctions");
 const { Branch, User, Sequelize } = db;
-
-// Example usage:
 
 const getAllBranches = async (filterData) => {
   try {
@@ -21,69 +22,10 @@ const getAllBranches = async (filterData) => {
       getUsers,
     } = filterData;
     let options = { where: {}, limit };
-    let currentDate;
+
     if (branchName) options.where.branchName = branchName;
     if (branchLocation) options.where.branchLocation = branchLocation;
-
-    if (startDate) {
-      if (!endDate) {
-        options.where.createdAt = new Date(
-          new Date(startDate).setUTCHours(0, 0, 0, 0)
-        );
-      } else {
-        options.where.createdAt = {
-          [Sequelize.Op.between]: [
-            new Date(new Date(startDate).setUTCHours(0, 0, 0, 0)),
-            new Date(new Date(endDate).setUTCHours(23, 59, 59, 59)),
-          ],
-        };
-      }
-    }
-    if (day) {
-      switch (day) {
-        case "today":
-          currentDate = new Date();
-          options.where.createdAt = {
-            [Sequelize.Op.between]: [
-              new Date(currentDate.setUTCHours(0, 0, 0, 0)),
-              new Date(currentDate.setUTCHours(23, 59, 59, 59)),
-            ],
-          };
-
-          break;
-        case "week":
-          currentDate = new Date();
-          const startOfWeek = new Date();
-          startOfWeek.setUTCHours(0, 0, 0, 0);
-          startOfWeek.setDate(currentDate.getDate() - 7);
-          const endOfWeek = new Date(currentDate.setUTCHours(23, 59, 59, 59));
-          options.where.createdAt = {
-            [Sequelize.Op.between]: [startOfWeek, endOfWeek],
-          };
-
-          break;
-        case "month":
-          currentDate = new Date();
-          const startOfMonth = new Date();
-          startOfMonth.setUTCHours(0, 0, 0, 0);
-          startOfMonth.setMonth(currentDate.getMonth() - 1);
-          const endOfMonth = new Date(currentDate.setUTCHours(23, 59, 59, 59));
-          options.where.createdAt = {
-            [Sequelize.Op.between]: [startOfMonth, endOfMonth],
-          };
-          break;
-
-        default:
-          currentDate = new Date();
-          options.where.createdAt = {
-            [Sequelize.Op.between]: [
-              new Date(currentDate.setUTCHours(0, 0, 0, 0)),
-              new Date(currentDate.setUTCHours(23, 59, 59, 59)),
-            ],
-          };
-          break;
-      }
-    }
+    dateRangeFilter({ options, startDate, endDate, day, Sequelize });
 
     if (q) {
       options.where[Sequelize.Op.or] = [
@@ -95,7 +37,6 @@ const getAllBranches = async (filterData) => {
     if (branchId) {
       options.where.branchId = branchId;
     }
-    console.log(getUsers);
     if (getUsers) {
       options.raw = true;
       options.nest = true;
@@ -108,18 +49,17 @@ const getAllBranches = async (filterData) => {
     }
 
     options.limit = parseInt(limit) || 50;
-    // options.raw = true;
-    options.logging = true;
 
-    console.log(options);
     let results = {};
     const { rows, count } = await Branch.findAndCountAll(options);
+    // console.log(rows);
 
     if (getUsers) {
       const branches = await removeDuplicateBranches(rows, "branchId");
       results.rows = branches;
+    } else {
+      results.rows = rows;
     }
-    results.rows = rows;
     results.count = count;
     return results;
   } catch (error) {
@@ -171,9 +111,22 @@ const createBranch = async (data) => {
     throw error;
   }
 };
+
+const updateBranchById = async (branchId, branchData) => {
+  try {
+    const updatedBranch = await Branch.update(
+      { ...branchData },
+      { where: { branchId } }
+    );
+    return updatedBranch;
+  } catch (error) {
+    throw error;
+  }
+};
 module.exports = {
   getAllBranches,
   deleteBranchById,
   deleteBranchesByIds,
   createBranch,
+  updateBranchById,
 };

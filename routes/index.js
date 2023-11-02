@@ -5,6 +5,7 @@ const {
   deleteBranch,
   bulkDeleteBranch,
   createNewBranch,
+  updateBranch,
 } = require("../controllers/branch.controller");
 const { deleteUser } = require("../controllers/user.controller");
 
@@ -16,7 +17,17 @@ const {
 const router = express.Router();
 module.exports = () => {
   router.use("/", authentication());
+
+  ////////////////////////////////////////////////
+
+  router.post(
+    "/branches/create",
+    authenticationCheck,
+    authorizationCheck("admin"),
+    createNewBranch
+  );
   router.get("/branches/all", authenticationCheck, getAllBranch);
+
   router.delete(
     "/branches/delete/:branchId",
     authenticationCheck,
@@ -29,17 +40,19 @@ module.exports = () => {
     authorizationCheck("admin"),
     bulkDeleteBranch
   );
-  router.post(
-    "/branches/create",
+  router.patch(
+    "/branches/update/:branchId",
     authenticationCheck,
-    authorizationCheck("admin"),
-    createNewBranch
+    authorizationCheck("admin", "branch_manager"),
+    updateBranch
   );
+  //////////////////////////////////////////////
   router.delete(
     "/users/delete:userId",
     authenticationCheck,
     authorizationCheck("admin"),
     deleteUser
   );
+
   return router;
 };

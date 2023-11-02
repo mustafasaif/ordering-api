@@ -42,10 +42,11 @@ const createUser = async (req, res, next) => {
         }),
       branchId: Joi.when("role", {
         is: Joi.valid("user", "branch_manager"),
-        then: Joi.string().required().messages({
+        then: Joi.string().guid({ version: "uuidv4" }).required().messages({
           "any.required": "Branch ID is required for users and branch managers",
           "string.base": "Branch ID should be a type of text",
           "string.empty": "Branch ID cannot be an empty field",
+          "string.guid": "The branchId must be UUIDv4",
         }),
         otherwise: Joi.optional(),
       }),
