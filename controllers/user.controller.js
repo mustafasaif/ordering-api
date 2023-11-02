@@ -1,5 +1,10 @@
 const Joi = require("joi");
-const { registerNewUser, deleteUserById } = require("../services/user.service");
+const {
+  registerNewUser,
+  deleteUserById,
+  getAllUsers,
+  updateUserbyId,
+} = require("../services/user.service");
 const logger = require("../utils/logger");
 const isNull = require("lodash/isNull");
 
@@ -120,8 +125,8 @@ const deleteUser = async (req, res, next) => {
   try {
     const schema = Joi.object({
       userId: Joi.string().guid({ version: "uuidv4" }).required().messages({
-        "string.guid": "The branchIds must be UUIDv4",
-        "string.base": "The branchIds must be in string format",
+        "string.guid": "The user Id must be UUIDv4",
+        "string.base": "The user Id must be in string format",
       }),
     });
 
@@ -152,8 +157,89 @@ const deleteUser = async (req, res, next) => {
     next(error);
   }
 };
+const getUser = async (req, res, next) => {
+  try {
+    const filterData = {
+      ...req.query,
+      role: req.user.role,
+      branchId: req.user.branchId,
+    };
+    const users = await getAllUsers(filterData);
+    res.status(200).json({
+      success: true,
+      message: "Get Operation completed successfully",
+      data: users.rows,
+      Total: users.count,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const updateUser = async (req, res, next) => {
+  try {
+    const paramsSchema = Joi.object({
+      userId: Joi.string().guid({ version: "uuidv4" }).required().messages({
+        "string.guid": "The userId must be UUIDv4",
+        "string.base": "The userId must be in string format",
+      }),
+    });
+
+    const { error: userIdError, value: userId } = paramsSchema.validate(
+      req.params
+    );
+
+    if (userIdError) {
+      return res.status(400).json({
+        success: false,
+        message: "Validation failed",
+        error: userIdError.details[0].message,
+      });
+    }
+    const schema = Joi.object({
+      firstName: Joi.string(),
+      email: Joi.string(),
+      lastName: Joi.string(),
+    })
+      .or("firstName", "email", "lastName")
+      .unknown(false);
+
+    const { error, value: userData } = schema.validate(req.body);
+    if (error) {
+      return res.status(400).json({
+        success: false,
+        message: "Validation failed",
+        error: error.details[0].message,
+      });
+    }
+    if (req.user.role === "user" && userId !== req.user.userId) {
+      return res.status(409).json({
+        success: false,
+        message: "patch Operation failed",
+        error: "You are only allowed to update your profile.",
+      });
+    }
+
+    const updatedUser = await updateUserbyId(userId.userId, userData);
+    if (updatedUser[0] === 0) {
+      return res.status(400).json({
+        message: "patch Operation failed",
+        error: "The provided user Id do not exist.",
+      });
+    }
+    res.status(201).json({
+      success: true,
+      message: "Patch Operation completed successfully.",
+      data: updatedUser[0],
+    });
+  } catch (error) {
+    next(error);
+  }
+};
 
 module.exports = {
   createUser,
   deleteUser,
+  getUser,
+  updateUser,
 };

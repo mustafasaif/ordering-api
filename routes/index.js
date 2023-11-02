@@ -7,7 +7,11 @@ const {
   createNewBranch,
   updateBranch,
 } = require("../controllers/branch.controller");
-const { deleteUser } = require("../controllers/user.controller");
+const {
+  deleteUser,
+  getUser,
+  updateUser,
+} = require("../controllers/user.controller");
 
 const {
   authenticationCheck,
@@ -53,6 +57,9 @@ module.exports = () => {
     authorizationCheck("admin"),
     deleteUser
   );
+
+  router.get("/users/all", authenticationCheck, getUser);
+  router.patch("/users/update/:userId", authenticationCheck, updateUser);
 
   return router;
 };

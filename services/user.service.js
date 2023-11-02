@@ -1,9 +1,10 @@
 const { v4: uuidv4 } = require("uuid");
 const bcrypt = require("bcrypt");
 const db = require("../models/index");
-const { User } = db;
+const { User, Sequelize } = db;
 const isNull = require("lodash/isNull");
 const { createApiError } = require("../utils/apiError");
+const { dateRangeFilter } = require("../utils/commonFunctions");
 
 const registerNewUser = async (userData) => {
   try {
@@ -49,7 +50,66 @@ const deleteUserById = async (userId) => {
   }
 };
 
+const getAllUsers = async (filterData) => {
+  try {
+    const {
+      email,
+      firstName,
+      lastName,
+      startDate,
+      endDate,
+      day,
+      q,
+      limit,
+      userId,
+      role,
+    } = filterData;
+
+    let options = { where: {}, limit };
+    if (email) options.where.email = email;
+    if (firstName) options.where.firstName = firstName;
+    if (lastName) options.where.lastName = lastName;
+    dateRangeFilter({ options, startDate, endDate, day, Sequelize });
+
+    if (q) {
+      options.where[Sequelize.Op.or] = [
+        { email: { [Sequelize.Op.like]: `%${q}%` } },
+        { firstName: { [Sequelize.Op.like]: `%${q}%` } },
+        { lastName: { [Sequelize.Op.like]: `%${q}%` } },
+      ];
+    }
+
+    if (role === "user") {
+      options.where.userId = userId;
+    }
+    if (role === "branch_manager") {
+      options.where.branchId = branchId;
+    }
+    options.limit = parseInt(limit) || 50;
+    console.log(options.where);
+    const users = await User.findAndCountAll(options);
+
+    return users;
+  } catch (error) {
+    throw error;
+  }
+};
+
+const updateUserbyId = async (userId, userData) => {
+  try {
+    const updatedUser = await User.update(
+      { ...userData },
+      { where: { userId } }
+    );
+
+    return updatedUser;
+  } catch (error) {
+    throw error;
+  }
+};
 module.exports = {
   registerNewUser,
   deleteUserById,
+  getAllUsers,
+  updateUserbyId,
 };

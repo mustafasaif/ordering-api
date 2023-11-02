@@ -179,6 +179,15 @@ const updateBranch = async (req, res, next) => {
         error: error.details[0].message,
       });
     }
+
+    if (req.user.role === "user") {
+      return res.status(400).json({
+        success: false,
+        message: "Post Operation failed",
+        error:
+          "You are not authorized perform this action. Kindly contact admin.",
+      });
+    }
     const updatedBranch = await updateBranchById(branchId.branchId, branchData);
     if (updatedBranch[0] === 0) {
       return res.status(400).json({
