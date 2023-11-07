@@ -13,9 +13,9 @@ const errorConverter = (err, req, res, next) => {
   }
   if (error.name === "SequelizeUniqueConstraintError" && error.parent) {
     if (error.parent.code === "ER_DUP_ENTRY") {
+      const keyName = Object.keys(error.fields)[0];
       const statusCode = 409;
-      const message =
-        "This account already exists. Please try a different email";
+      const message = `This ${keyName} already exists. Please try a different ${keyName}`;
       error = new ApiError(statusCode, message, false, err.stack);
     }
   }

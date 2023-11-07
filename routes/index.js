@@ -14,6 +14,13 @@ const {
 } = require("../controllers/user.controller");
 
 const {
+  createNewProduct,
+  updateProduct,
+  deleteProduct,
+  bulkDeleteProduct,
+  getAllProduct,
+} = require("../controllers/product.controller");
+const {
   authenticationCheck,
   authorizationCheck,
 } = require("../middlewares/auth");
@@ -61,5 +68,29 @@ module.exports = () => {
   router.get("/users/all", authenticationCheck, getUser);
   router.patch("/users/update/:userId", authenticationCheck, updateUser);
 
+  //////////////////////////////////////////
+  router.post("/products/create", authenticationCheck, createNewProduct);
+  router.patch(
+    "/products/update/:productId",
+    authenticationCheck,
+    updateProduct
+  );
+  router.delete(
+    "/products/delete/:productId",
+    authenticationCheck,
+    deleteProduct
+  );
+  router.delete(
+    "/products/bulk-delete",
+    authenticationCheck,
+    authorizationCheck("admin", "branch_manager"),
+    bulkDeleteProduct
+  );
+  router.get(
+    "/products/all",
+    authenticationCheck,
+    authorizationCheck("admin", "branch_manager", "user"),
+    getAllProduct
+  );
   return router;
 };
