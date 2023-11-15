@@ -1,5 +1,5 @@
 const {
-    getAllProducts,
+  getAllProducts,
   deleteProductById,
   deleteProductsByIds,
   createProduct,
@@ -8,21 +8,21 @@ const {
 const Joi = require("joi");
 const logger = require("../utils/logger");
 
-  const getAllProduct = async (req, res, next) => {
-    try {
-      const filterData = req.query;
-      const products = await getAllProducts(filterData);
-      res.status(200).json({
-        success: true,
-        message: "Get Operation completed successfully",
-        data: products.rows,
-        Total: products.count,
-      });
-    } catch (error) {
-      logger.error(error);
-      next(error);
-    }
-  };
+const getAllProduct = async (req, res, next) => {
+  try {
+    const filterData = req.query;
+    const products = await getAllProducts(filterData);
+    res.status(200).json({
+      success: true,
+      message: "Get Operation completed successfully",
+      data: products.rows,
+      Total: products.count,
+    });
+  } catch (error) {
+    logger.error(error);
+    next(error);
+  }
+};
 
 const deleteProduct = async (req, res, next) => {
   try {
@@ -208,7 +208,7 @@ const updateProduct = async (req, res, next) => {
       });
     }
 
-    if (req.user.role === "user") {
+    if (req.user.role === "sales" || req.user.role === "user") {
       return res.status(400).json({
         success: false,
         message: "Post Operation failed",

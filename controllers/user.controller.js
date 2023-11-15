@@ -39,16 +39,16 @@ const createUser = async (req, res, next) => {
           "any.only": "Confirm Password does not match",
         }),
       role: Joi.string()
-        .valid("admin", "user", "branch_manager")
+        .valid("admin", "user", "sales", "branch_manager")
         .required()
         .messages({
           "any.required": "Role is a required field",
           "any.only": "Invalid role specified",
         }),
       branchId: Joi.when("role", {
-        is: Joi.valid("user", "branch_manager"),
+        is: Joi.valid("sales", "branch_manager"),
         then: Joi.string().guid({ version: "uuidv4" }).required().messages({
-          "any.required": "Branch ID is required for users and branch managers",
+          "any.required": "Branch ID is required for sales and branch managers",
           "string.base": "Branch ID should be a type of text",
           "string.empty": "Branch ID cannot be an empty field",
           "string.guid": "The branchId must be UUIDv4",
@@ -71,6 +71,13 @@ const createUser = async (req, res, next) => {
     }
 
     switch (true) {
+      case !req?.user && userData.role !== "user":
+        return res.status(400).json({
+          success: false,
+          message: "Post Operation failed",
+          error:
+            "This route only allows accounts will the role 'user' to be created.",
+        });
       case req?.user?.role !== "admin" && userData.role === "admin":
         return res.status(400).json({
           success: false,
@@ -79,12 +86,12 @@ const createUser = async (req, res, next) => {
         });
 
       case req.user.role === "admin" &&
-        (userData.role === "user" || userData.role === "branch_manager") &&
+        (userData.role === "sales" || userData.role === "branch_manager") &&
         isNull(userData.branchId):
         return res.status(400).json({
           success: false,
           message: "Post Operation failed",
-          error: "You need to provide branchId for Managers and users",
+          error: "You need to provide branchId for Managers and sales",
         });
 
       case req.user.role === "branch_manager" &&
@@ -96,7 +103,7 @@ const createUser = async (req, res, next) => {
         });
 
       case req.user.role === "branch_manager" &&
-        userData.role === "user" &&
+        userData.role === "sales" &&
         isNull(userData.branchId):
         return res.status(400).json({
           success: false,
@@ -212,7 +219,7 @@ const updateUser = async (req, res, next) => {
         error: error.details[0].message,
       });
     }
-    if (req.user.role === "user" && userId !== req.user.userId) {
+    if (req.user.role === "sales" && userId !== req.user.userId) {
       return res.status(409).json({
         success: false,
         message: "patch Operation failed",

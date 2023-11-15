@@ -43,7 +43,7 @@ const getAllBranches = async (filterData) => {
       options.include = [
         {
           model: User,
-          as: "users",
+          // as: "users",
         },
       ];
     }
@@ -52,11 +52,13 @@ const getAllBranches = async (filterData) => {
 
     let results = {};
     const { rows, count } = await Branch.findAndCountAll(options);
-    // console.log(rows);
+    console.log(rows);
+    console.log(count);
 
     if (getUsers) {
-      const branches = await removeDuplicateBranches(rows, "branchId");
-      results.rows = branches;
+      // const branches = await removeDuplicateBranches(rows, "branchId");
+      // results.rows = branches;
+      results.rows = rows;
     } else {
       results.rows = rows;
     }

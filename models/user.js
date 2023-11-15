@@ -6,9 +6,10 @@ module.exports = (sequelize, DataTypes) => {
     static associate(models) {
       // Define associations here
       User.belongsTo(models.Branch, {
-        as: "branch",
-        foreignKey: "branchId",
+        // as: "branch",
+        // foreignKey: "branchId",
       });
+      User.hasMany(models.CartItem);
     }
   }
 
@@ -37,7 +38,7 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: true,
       },
       role: {
-        type: DataTypes.ENUM(["user", "admin", "branch_manager"]),
+        type: DataTypes.ENUM(["user", "sales", "admin", "branch_manager"]),
         allowNull: false,
         defaultValue: "user",
       },

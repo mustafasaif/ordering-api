@@ -79,10 +79,13 @@ const getAllUsers = async (filterData) => {
       ];
     }
 
-    if (role === "user") {
+    if (role === "sales") {
       options.where.userId = userId;
     }
     if (role === "branch_manager") {
+      options.where.branchId = branchId;
+    }
+    if (role === "user") {
       options.where.branchId = branchId;
     }
     options.limit = parseInt(limit) || 50;

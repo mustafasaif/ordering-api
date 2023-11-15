@@ -7,8 +7,8 @@ module.exports = (sequelize, DataTypes) => {
     static associate(models) {
       //Define associations here
       Branch.hasMany(models.User, {
-        as: "users",
-        foreignKey: "branchId",
+        // as: "users",
+        // foreignKey: "branchId",
         sourceKey: "branchId",
       });
     }
