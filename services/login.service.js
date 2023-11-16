@@ -24,7 +24,11 @@ const login = async (userData) => {
       isNull(userExists) ||
       !(await bcrypt.compare(password, userExists.password))
     ) {
-      throw createApiError(400, "Invalid email or password try again");
+      throw createApiError(
+        400,
+        "Post Operation failed",
+        "Invalid email or password try again"
+      );
     }
 
     return userExists;

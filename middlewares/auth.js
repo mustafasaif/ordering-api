@@ -18,6 +18,7 @@ const authenticationCheck = async (req, res, next) => {
     if (!token) {
       throw createApiError(
         401,
+        "Operation failed",
         "Bearer token missing in authorization headers"
       );
     }
@@ -31,7 +32,11 @@ const authenticationCheck = async (req, res, next) => {
       where: { userId: decodedToken.userId },
     });
     if (!user) {
-      throw createApiError(401, "The user with the given token does not exist");
+      throw createApiError(
+        401,
+        "Post Operation failed",
+        "The user with the given token does not exist"
+      );
     }
 
     if (!isNull(user.passwordUpdatedAt)) {
@@ -43,6 +48,7 @@ const authenticationCheck = async (req, res, next) => {
       if (decodedToken.iat < updatedAtTimestamp) {
         throw createApiError(
           401,
+          "Post Operation failed",
           "The password has been changed. Please login again"
         );
       }
@@ -64,6 +70,7 @@ const authorizationCheck = (...roles) => {
     if (!roles.includes(req.user.role)) {
       throw createApiError(
         403,
+        "Post Operation failed",
         "You do not have permission to perform this action"
       );
     }

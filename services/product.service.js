@@ -13,7 +13,11 @@ const createProduct = async (data) => {
     });
 
     if (!isNull(existingProduct)) {
-      throw createApiError(409, "This Product already exists.");
+      throw createApiError(
+        409,
+        "Post Operation failed",
+        "This Product already exists."
+      );
     }
 
     // const productData = {

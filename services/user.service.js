@@ -15,6 +15,7 @@ const registerNewUser = async (userData) => {
     if (!isNull(existingUser)) {
       throw createApiError(
         409,
+        "Post Operation failed",
         "This account already exists. Please try a different email"
       );
     }

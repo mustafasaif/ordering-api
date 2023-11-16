@@ -69,15 +69,24 @@ const createUser = async (req, res, next) => {
         error: error.details[0].message,
       });
     }
+    let newUser;
+    if (!req?.user && userData.role !== "user") {
+      return res.status(400).json({
+        success: false,
+        message: "Post Operation failed",
+        error:
+          "This route only allows accounts will the role 'user' to be created.",
+      });
+    } else if (!req?.user && userData.role === "user") {
+      newUser = await registerNewUser(userData);
+      return res.status(201).json({
+        success: true,
+        message: "Post Operation completed successfully.",
+        data: newUser,
+      });
+    }
 
     switch (true) {
-      case !req?.user && userData.role !== "user":
-        return res.status(400).json({
-          success: false,
-          message: "Post Operation failed",
-          error:
-            "This route only allows accounts will the role 'user' to be created.",
-        });
       case req?.user?.role !== "admin" && userData.role === "admin":
         return res.status(400).json({
           success: false,
@@ -113,7 +122,7 @@ const createUser = async (req, res, next) => {
 
       default:
         // If none of the conditions match, create a new user
-        const newUser = await registerNewUser(userData);
+        newUser = await registerNewUser(userData);
         res.status(201).json({
           success: true,
           message: "Post Operation completed successfully.",
