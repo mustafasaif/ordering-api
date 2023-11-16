@@ -3,13 +3,14 @@
 const { Model, DataTypes } = require("sequelize");
 
 module.exports = (sequelize, DataTypes) => {
-  class Product extends Model {
+  class CartItem extends Model {
     static associate(models) {
-      Product.hasMany(models.CartItem);
+      CartItem.belongsTo(models.User);
+      CartItem.belongsTo(models.Product);
     }
   }
 
-  Product.init(
+  CartItem.init(
     {
       id: {
         allowNull: false,
@@ -17,30 +18,17 @@ module.exports = (sequelize, DataTypes) => {
         primaryKey: true,
         autoIncrement: true,
       },
+      userId: {
+        type: DataTypes.CHAR(100),
+        allowNull: false,
+      },
       productId: {
         type: DataTypes.CHAR(100),
         allowNull: false,
-        unique: true,
       },
-      productName: {
-        type: DataTypes.CHAR(150),
-        allowNull: false,
-      },
-      productSize: {
-        type: DataTypes.CHAR(100),
-        allowNull: true,
-      },
-      productType: {
-        type: DataTypes.CHAR(100),
-        allowNull: false,
-      },
-      productPrice: {
+      quantity: {
         type: DataTypes.INTEGER,
-        allowNull: true,
-      },
-      productQuantity: {
-        type: DataTypes.INTEGER,
-        allowNull: true,
+        allowNull: false,
       },
       createdAt: {
         type: DataTypes.DATE,
@@ -50,10 +38,9 @@ module.exports = (sequelize, DataTypes) => {
       updatedAt: {
         type: DataTypes.DATE,
         allowNull: false,
-        defaultValue: DataTypes.NOW,
       },
     },
-    { sequelize, modelName: "Product" }
+    { sequelize, modelName: "CartItem" }
   );
-  return Product;
+  return CartItem;
 };

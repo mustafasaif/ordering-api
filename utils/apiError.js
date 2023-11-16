@@ -1,7 +1,9 @@
 class ApiError extends Error {
-  constructor(statusCode, message, isOperational = true, stack = "") {
+  constructor(statusCode, message, error, isOperational = true, stack = "") {
     super(message);
     this.statusCode = statusCode;
+    this.message = message;
+    this.error = error;
     this.isOperational = isOperational;
     if (stack) {
       this.stack = stack;
@@ -11,7 +13,7 @@ class ApiError extends Error {
   }
 }
 
-const createApiError = (statusCode, message) =>
-  new ApiError(statusCode, message);
+const createApiError = (statusCode, message, error) =>
+  new ApiError(statusCode, message, error);
 
 module.exports = { ApiError, createApiError };

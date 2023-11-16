@@ -99,7 +99,11 @@ const createBranch = async (data) => {
     });
 
     if (!isNull(existingBranch)) {
-      throw createApiError(409, "This branch already exists.");
+      throw createApiError(
+        409,
+        "Post Operation failed",
+        "This branch already exists."
+      );
     }
 
     const branchData = {

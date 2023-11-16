@@ -20,6 +20,7 @@ const {
   bulkDeleteProduct,
   getAllProduct,
 } = require("../controllers/product.controller");
+const { createCartItems } = require("../controllers/cart.controller");
 const {
   authenticationCheck,
   authorizationCheck,
@@ -29,7 +30,7 @@ const router = express.Router();
 module.exports = () => {
   router.use("/", authentication());
 
-  ////////////////////////////////////////////////
+  ////////////////Branch Routes////////////////////////////////
 
   router.post(
     "/branches/create",
@@ -57,7 +58,7 @@ module.exports = () => {
     authorizationCheck("admin", "branch_manager"),
     updateBranch
   );
-  //////////////////////////////////////////////
+  ////////////////User Routes//////////////////////////////
   router.delete(
     "/users/delete:userId",
     authenticationCheck,
@@ -68,16 +69,23 @@ module.exports = () => {
   router.get("/users/all", authenticationCheck, getUser);
   router.patch("/users/update/:userId", authenticationCheck, updateUser);
 
-  //////////////////////////////////////////
-  router.post("/products/create", authenticationCheck, createNewProduct);
+  ////////////////Product Routes//////////////////////////
+  router.post(
+    "/products/create",
+    authenticationCheck,
+    authorizationCheck("branch_manager", "admin"),
+    createNewProduct
+  );
   router.patch(
     "/products/update/:productId",
     authenticationCheck,
+    authorizationCheck("branch_manager", "admin"),
     updateProduct
   );
   router.delete(
     "/products/delete/:productId",
     authenticationCheck,
+    authorizationCheck("branch_manager", "admin"),
     deleteProduct
   );
   router.delete(
@@ -86,11 +94,9 @@ module.exports = () => {
     authorizationCheck("admin", "branch_manager"),
     bulkDeleteProduct
   );
-  router.get(
-    "/products/all",
-    authenticationCheck,
-    authorizationCheck("admin", "branch_manager", "user"),
-    getAllProduct
-  );
+  router.get("/products/all", authenticationCheck, getAllProduct);
+  //////////////////Cart Routes//////////////////////////////////////
+
+  router.post("/cart/add", authenticationCheck, createCartItems);
   return router;
 };

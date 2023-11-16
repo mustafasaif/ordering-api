@@ -130,9 +130,15 @@ const createNewProduct = async (req, res, next) => {
         "string.number": `productPrice should be a type of number`,
         "string.empty": `productPrice cannot be an empty field`,
       }),
+      productQuantity: Joi.number().required().messages({
+        "any.required": "productQuantity is a required field",
+        "string.number": `productQuantity should be a type of number`,
+        "string.empty": `productQuantity cannot be an empty field`,
+      }),
       productId: Joi.string().guid({ version: "uuidv4" }).required().messages({
         "string.guid": "The productId must be UUIDv4",
         "string.base": "The productId must be in string format",
+        "any.required": "productId is a required field",
       }),
     });
 
@@ -195,8 +201,18 @@ const updateProduct = async (req, res, next) => {
         "string.number": `productPrice should be a type of number`,
         "string.empty": `productPrice cannot be an empty field`,
       }),
+      productPrice: Joi.number().messages({
+        "string.number": `productPrice should be a type of number`,
+        "string.empty": `productPrice cannot be an empty field`,
+      }),
     })
-      .or("productPrice", "productSize", "productType", "productName")
+      .or(
+        "productPrice",
+        "productSize",
+        "productType",
+        "productName",
+        "productQuantity"
+      )
       .unknown(false);
 
     const { error, value: productData } = schema.validate(req.body);
