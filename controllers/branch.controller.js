@@ -92,6 +92,7 @@ const bulkDeleteBranch = async (req, res, next) => {
 
     if (!deletedBranchCount > 0) {
       return res.status(400).json({
+        success: false,
         message: "Delete Operation failed",
         error: "The provided branch Ids do not exist.",
       });

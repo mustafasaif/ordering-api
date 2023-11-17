@@ -20,7 +20,12 @@ const {
   bulkDeleteProduct,
   getAllProduct,
 } = require("../controllers/product.controller");
-const { createCartItems } = require("../controllers/cart.controller");
+const {
+  createCartItems,
+  updateCartItems,
+  deleteCartItems,
+  getAllCartItems,
+} = require("../controllers/cart.controller");
 const {
   authenticationCheck,
   authorizationCheck,
@@ -31,7 +36,6 @@ module.exports = () => {
   router.use("/", authentication());
 
   ////////////////Branch Routes////////////////////////////////
-
   router.post(
     "/branches/create",
     authenticationCheck,
@@ -95,8 +99,11 @@ module.exports = () => {
     bulkDeleteProduct
   );
   router.get("/products/all", authenticationCheck, getAllProduct);
-  //////////////////Cart Routes//////////////////////////////////////
 
+  //////////////////Cart Routes//////////////////////////////////////
   router.post("/cart/add", authenticationCheck, createCartItems);
+  router.patch("/cart/update", authenticationCheck, updateCartItems);
+  router.delete("/cart/delete", authenticationCheck, deleteCartItems);
+  router.get("/cart/all", authenticationCheck, getAllCartItems);
   return router;
 };
